@@ -2,15 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vexo Music Player - YouTube</title>
+<title>Vexo Music Player</title>
 
 <style>
   body {
+    margin: 0;
     background: #0f0f0f;
     color: white;
     font-family: Arial, sans-serif;
     text-align: center;
-    padding-top: 60px;
+    padding-top: 50px;
   }
 
   h1 {
@@ -18,17 +19,17 @@
   }
 
   input {
-    width: 320px;
+    width: 350px;
     padding: 12px;
-    border-radius: 10px;
     border: none;
+    border-radius: 10px;
     outline: none;
     font-size: 14px;
   }
 
   button {
     padding: 12px 18px;
-    margin-left: 10px;
+    margin-left: 8px;
     border: none;
     border-radius: 10px;
     background: #ff0000;
@@ -49,6 +50,8 @@
 
   #player {
     margin-top: 30px;
+    display: flex;
+    justify-content: center;
   }
 </style>
 </head>
@@ -58,51 +61,52 @@
 <h1>🎵 Vexo YouTube Player</h1>
 
 <input id="ytLink" placeholder="Paste YouTube link here...">
-<button onclick="loadVideo()">Play</button>
+<button onclick="playVideo()">Play</button>
 
-<div id="status">Waiting for player...</div>
+<div id="status">Loading player...</div>
 
 <div id="player"></div>
 
+<!-- YouTube API -->
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
 let player;
-let playerReady = false;
+let ready = false;
 
-// YouTube API loads this automatically
+// REQUIRED by YouTube API (must be global)
 function onYouTubeIframeAPIReady() {
   player = new YT.Player('player', {
-    height: '220',
-    width: '360',
+    height: '250',
+    width: '420',
     videoId: '',
-    playerVars: {
-      autoplay: 1
-    },
     events: {
       onReady: () => {
-        playerReady = true;
-        document.getElementById("status").innerText = "Ready! Paste a link.";
+        ready = true;
+        document.getElementById("status").innerText = "Ready 🎧 Paste a link!";
       }
     }
   });
 }
 
-// Extract video ID from ANY YouTube link
+// Extract video ID from ANY YouTube URL
 function getVideoId(url) {
   try {
-    const parsed = new URL(url);
+    const u = new URL(url);
 
-    if (parsed.searchParams.get("v")) {
-      return parsed.searchParams.get("v");
+    // normal watch link
+    if (u.searchParams.get("v")) {
+      return u.searchParams.get("v");
     }
 
-    if (parsed.hostname.includes("youtu.be")) {
-      return parsed.pathname.slice(1);
+    // short youtu.be link
+    if (u.hostname.includes("youtu.be")) {
+      return u.pathname.slice(1);
     }
 
-    if (parsed.pathname.includes("/embed/")) {
-      return parsed.pathname.split("/embed/")[1];
+    // embed link
+    if (u.pathname.includes("/embed/")) {
+      return u.pathname.split("/embed/")[1];
     }
 
     return null;
@@ -111,30 +115,29 @@ function getVideoId(url) {
   }
 }
 
-// Load video
-function loadVideo() {
-  const input = document.getElementById("ytLink");
-  const url = input.value.trim();
-  const videoId = getVideoId(url);
+// Play video
+function playVideo() {
+  const url = document.getElementById("ytLink").value.trim();
+  const id = getVideoId(url);
 
-  if (!videoId) {
+  if (!id) {
     document.getElementById("status").innerText = "❌ Invalid YouTube link";
     return;
   }
 
-  if (!playerReady) {
+  if (!ready) {
     document.getElementById("status").innerText = "⏳ Player still loading...";
     return;
   }
 
-  player.loadVideoById(videoId);
+  player.loadVideoById(id);
   document.getElementById("status").innerText = "▶️ Playing...";
 }
 
-// Press ENTER to play
-document.getElementById("ytLink").addEventListener("keypress", function(e) {
+// Press Enter to play
+document.getElementById("ytLink").addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
-    loadVideo();
+    playVideo();
   }
 });
 </script>
