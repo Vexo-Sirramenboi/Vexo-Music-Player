@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Vexo Music Player - YouTube Mode</title>
+<style>
+  body {
+    background: #0f0f0f;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+    padding-top: 50px;
+  }
+
+  input {
+    width: 300px;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+  }
+
+  button {
+    padding: 10px 15px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #ff0000;
+    color: white;
+    cursor: pointer;
+  }
+
+  #player {
+    margin-top: 30px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🎵 Vexo YouTube Player</h1>
+
+<input id="ytLink" placeholder="Paste YouTube link here...">
+<button onclick="loadVideo()">Play</button>
+
+<div id="player"></div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+<script>
+let player;
+
+// Create player
+function onYouTubeIframeAPIReady() {
+  player = new YT.Player('player', {
+    height: '200',
+    width: '300',
+    videoId: '',
+    playerVars: {
+      autoplay: 1
+    }
+  });
+}
+
+// Extract video ID from ANY YouTube link
+function getVideoId(url) {
+  const regex = /(?:youtube\\.com\\/watch\\?v=|youtu\\.be\\/|youtube\\.com\\/embed\\/)([^&\\n?#]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+}
+
+// Load video from input
+function loadVideo() {
+  const url = document.getElementById("ytLink").value;
+  const videoId = getVideoId(url);
+
+  if (!videoId) {
+    alert("Invalid YouTube link!");
+    return;
+  }
+
+  player.loadVideoById(videoId);
+}
+</script>
+
+</body>
+</html>
